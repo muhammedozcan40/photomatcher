@@ -1,0 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Masaüstü için 5 sütun */
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 800px;
+    min-height: 400px; /* kartlar yok oldukça grid'in çökmemesi için */
+}
+
+.card {
+    width: 150px;  /* Sabit genişlik */
+    height: 150px; /* Sabit yükseklik */
+    background: #2196F3; /* Kart arka yüzü rengi */
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s, opacity 0.5s ease-out; /* opacity geçişi eklendi */
+    opacity: 1; /* başlangıç opaklığı */
+}
+
+.card::before {
+    content: "🎴";  /* Kart arka yüzü sembolü */
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 2em;
+    color: white;
+    backface-visibility: hidden;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    border-radius: 5px;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+.score {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+.success-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 100vw;  /* Ekran genişliğini aşmasın */
+    max-height: 100vh; /* Ekran yüksekliğini aşmasın */
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        grid-template-columns: repeat(2, 1fr); /* Mobil için 2 sütun */
+        gap: 5px;
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .card {
+        width: 120px;  /* Mobil için kart boyutu */
+        height: 120px;
+    }
+
+    .success-overlay img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+} 
