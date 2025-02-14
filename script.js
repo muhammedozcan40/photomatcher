@@ -10,6 +10,7 @@ let cards = [...images, ...images];
 let moves = 0;
 let flippedCards = [];
 let matchedPairs = 0;
+let currentImageIndex = 0;
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -24,18 +25,20 @@ function createCard(imageUrl, index) {
     card.className = 'card';
     card.dataset.index = index;
     
-    const img = document.createElement('img');
-    img.src = imageUrl;
+    // Resim div'i oluştur
+    const imgDiv = document.createElement('div');
+    imgDiv.className = 'card-face card-front';
     
-    // Resim yükleme hatası kontrolü
-    img.onerror = function() {
-        console.error(`Resim yüklenemedi: ${imageUrl}`);
-        // Varsayılan bir kart resmi kullanabilirsiniz
-        this.style.background = '#2196F3';
-        this.style.content = '🎴';
-    };
+    // Arka yüz div'i
+    const backDiv = document.createElement('div');
+    backDiv.className = 'card-face card-back';
+    backDiv.innerHTML = '🎴';
     
-    card.appendChild(img);
+    // Resmi background olarak ayarla
+    imgDiv.style.backgroundImage = `url(${imageUrl})`;
+    
+    card.appendChild(backDiv);
+    card.appendChild(imgDiv);
     card.addEventListener('click', flipCard);
     
     return card;
@@ -125,8 +128,8 @@ function resetGame() {
         existingOverlay.remove();
     }
     
-    const gameContainer = document.getElementById('gameContainer');
-    gameContainer.innerHTML = '';
+    const gameBoard = document.getElementById('gameBoard');
+    gameBoard.innerHTML = '';
     moves = 0;
     matchedPairs = 0;
     flippedCards = [];
@@ -136,12 +139,108 @@ function resetGame() {
 
 function initializeGame() {
     cards = shuffle(cards);
-    const gameContainer = document.getElementById('gameContainer');
+    const gameBoard = document.getElementById('gameBoard');
     
     cards.forEach((imageUrl, index) => {
         const card = createCard(imageUrl, index);
-        gameContainer.appendChild(card);
+        gameBoard.appendChild(card);
     });
 }
 
-initializeGame(); 
+function showMainMenu() {
+    document.getElementById('mainMenu').style.display = 'block';
+    document.getElementById('gameContainer').style.display = 'none';
+    document.getElementById('gallery').style.display = 'none';
+    document.getElementById('about').style.display = 'none';
+}
+
+function startGame() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('gameContainer').style.display = 'block';
+    resetGame();
+}
+
+function showGallery() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('gallery').style.display = 'block';
+    
+    const galleryGrid = document.querySelector('.gallery-grid');
+    galleryGrid.innerHTML = '';
+    
+    images.forEach((imagePath, index) => {
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.onclick = () => showFullImage(index);
+        galleryGrid.appendChild(img);
+    });
+}
+
+function showFullImage(index) {
+    currentImageIndex = index;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'full-image-overlay';
+    
+    const container = document.createElement('div');
+    container.className = 'full-image-container';
+    
+    const img = document.createElement('img');
+    img.src = images[currentImageIndex];
+    
+    const prevButton = document.createElement('button');
+    prevButton.className = 'nav-button prev-button';
+    prevButton.innerHTML = '←';
+    prevButton.onclick = showPrevImage;
+    
+    const nextButton = document.createElement('button');
+    nextButton.className = 'nav-button next-button';
+    nextButton.innerHTML = '→';
+    nextButton.onclick = showNextImage;
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.innerHTML = '×';
+    closeButton.onclick = () => overlay.remove();
+    
+    container.appendChild(img);
+    overlay.appendChild(prevButton);
+    overlay.appendChild(nextButton);
+    overlay.appendChild(closeButton);
+    overlay.appendChild(container);
+    
+    document.body.appendChild(overlay);
+    
+    // ESC tuşu ile kapatma
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') overlay.remove();
+        if (e.key === 'ArrowLeft') showPrevImage();
+        if (e.key === 'ArrowRight') showNextImage();
+    });
+}
+
+function showPrevImage() {
+    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+    updateFullImage();
+}
+
+function showNextImage() {
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+    updateFullImage();
+}
+
+function updateFullImage() {
+    const img = document.querySelector('.full-image-container img');
+    if (img) {
+        img.src = images[currentImageIndex];
+    }
+}
+
+function showAbout() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('about').style.display = 'block';
+}
+
+// Sayfa yüklendiğinde sadece ana menüyü göster, oyunu başlatma
+window.onload = function() {
+    showMainMenu();
+}; 
